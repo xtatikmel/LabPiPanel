@@ -1,0 +1,287 @@
+import { useState } from 'react';
+import { Settings, Save, Server, Activity, Bell } from 'lucide-react';
+import { useConfig } from '@/hooks/useConfig';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+
+export function ConfigPanel() {
+  const { config, loading, saved, updateFuenteConfig, updateAlertConfig } = useConfig();
+  
+  // Estados locales para edición
+  const [fuenteHost, setFuenteHost] = useState(config.fuente.host);
+  const [fuentePort, setFuentePort] = useState(config.fuente.port.toString());
+  
+  const handleSaveFuente = async () => {
+    await updateFuenteConfig({
+      host: fuenteHost,
+      port: parseInt(fuentePort)
+    });
+  };
+
+  const handleUpdateAlertThreshold = async (key: string, field: string, value: any) => {
+    const alertConfig = { ...config.alerts };
+    (alertConfig as any)[key] = {
+      ...(alertConfig as any)[key],
+      [field]: value
+    };
+    await updateAlertConfig({ [key]: (alertConfig as any)[key] });
+  };
+
+  return (
+    <Card className="itm-panel">
+      <CardHeader className="itm-card-header">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Settings className="w-5 h-5" />
+          Configuración del Sistema
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-4">
+        <Tabs defaultValue="fuente" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-4">
+            <TabsTrigger value="fuente" className="flex items-center gap-2">
+              <Server className="w-4 h-4" />
+              Fuente XLN
+            </TabsTrigger>
+            <TabsTrigger value="daq" className="flex items-center gap-2">
+              <Activity className="w-4 h-4" />
+              DAQ
+            </TabsTrigger>
+            <TabsTrigger value="alerts" className="flex items-center gap-2">
+              <Bell className="w-4 h-4" />
+              Alertas
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Configuración Fuente XLN */}
+          <TabsContent value="fuente" className="space-y-4">
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <h4 className="font-medium text-[#002060] mb-3">Conexión Telnet</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-600 mb-1 block">Dirección IP</label>
+                  <Input
+                    value={fuenteHost}
+                    onChange={(e) => setFuenteHost(e.target.value)}
+                    placeholder="192.168.1.100"
+                    className="itm-input"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-600 mb-1 block">Puerto</label>
+                  <Input
+                    value={fuentePort}
+                    onChange={(e) => setFuentePort(e.target.value)}
+                    placeholder="10001"
+                    className="itm-input"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <h4 className="font-medium text-gray-700 mb-3">Límites de Operación</h4>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center">
+                  <div className="text-xs text-gray-500 mb-1">Voltaje Máx</div>
+                  <div className="text-lg font-bold text-[#002060]">{config.fuente.max_voltage}V</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-gray-500 mb-1">Corriente Máx</div>
+                  <div className="text-lg font-bold text-[#E74C3C]">{config.fuente.max_current}A</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-gray-500 mb-1">Potencia Máx</div>
+                  <div className="text-lg font-bold text-[#27AE60]">{config.fuente.max_power}W</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Button 
+                onClick={handleSaveFuente} 
+                disabled={loading}
+                className="itm-btn-primary"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {saved ? 'Guardado!' : 'Guardar Configuración'}
+              </Button>
+            </div>
+          </TabsContent>
+
+          {/* Configuración DAQ */}
+          <TabsContent value="daq" className="space-y-4">
+            <div className="bg-cyan-50 p-3 rounded-lg">
+              <h4 className="font-medium text-cyan-800 mb-3">Dispositivo USB5203</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-600 mb-1 block">ID Dispositivo</label>
+                  <Input
+                    value={config.daq.device_id}
+                    readOnly
+                    className="bg-gray-100"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-600 mb-1 block">Frecuencia (Hz)</label>
+                  <Input
+                    value={config.daq.sample_rate}
+                    readOnly
+                    className="bg-gray-100"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <h4 className="font-medium text-gray-700 mb-3">Canales de Termopares</h4>
+              <div className="grid grid-cols-4 gap-2">
+                {config.daq.channel_names.map((name, i) => (
+                  <div key={i} className="text-center p-2 bg-white rounded border">
+                    <div className="text-[10px] text-gray-400">CH{i}</div>
+                    <div className="text-xs font-medium">{name}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-yellow-50 p-3 rounded-lg">
+                <div className="text-xs text-gray-500 mb-1">Tipo Termopar</div>
+                <div className="text-lg font-bold text-yellow-700">{config.daq.thermocouple_type}</div>
+              </div>
+              <div className="bg-green-50 p-3 rounded-lg">
+                <div className="text-xs text-gray-500 mb-1">Unidades</div>
+                <div className="text-lg font-bold text-green-700">°{config.daq.units}</div>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Configuración Alertas */}
+          <TabsContent value="alerts" className="space-y-4">
+            <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+              <div>
+                <div className="font-medium">Sistema de Alertas</div>
+                <div className="text-xs text-gray-500">Habilitar notificaciones</div>
+              </div>
+              <Switch
+                checked={config.alerts.enabled}
+                onCheckedChange={(v) => updateAlertConfig({ enabled: v })}
+              />
+            </div>
+
+            <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+              <div>
+                <div className="font-medium">Sonido de Alerta</div>
+                <div className="text-xs text-gray-500">Beep al detectar anomalía</div>
+              </div>
+              <Switch
+                checked={config.alerts.sound_enabled}
+                onCheckedChange={(v) => updateAlertConfig({ sound_enabled: v })}
+              />
+            </div>
+
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-700">Umbrales de Alerta</h4>
+              
+              {/* Voltaje */}
+              <div className="border rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Voltaje</span>
+                  <Switch
+                    checked={config.alerts.voltage_alert.enabled}
+                    onCheckedChange={(v) => handleUpdateAlertThreshold('voltage_alert', 'enabled', v)}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs text-gray-500">Máximo (V)</label>
+                    <Input
+                      type="number"
+                      value={config.alerts.voltage_alert.max_value || ''}
+                      onChange={(e) => handleUpdateAlertThreshold('voltage_alert', 'max_value', parseFloat(e.target.value))}
+                      disabled={!config.alerts.voltage_alert.enabled}
+                      className="h-8"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Corriente */}
+              <div className="border rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Corriente</span>
+                  <Switch
+                    checked={config.alerts.current_alert.enabled}
+                    onCheckedChange={(v) => handleUpdateAlertThreshold('current_alert', 'enabled', v)}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs text-gray-500">Máximo (A)</label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={config.alerts.current_alert.max_value || ''}
+                      onChange={(e) => handleUpdateAlertThreshold('current_alert', 'max_value', parseFloat(e.target.value))}
+                      disabled={!config.alerts.current_alert.enabled}
+                      className="h-8"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Potencia */}
+              <div className="border rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Potencia</span>
+                  <Switch
+                    checked={config.alerts.power_alert.enabled}
+                    onCheckedChange={(v) => handleUpdateAlertThreshold('power_alert', 'enabled', v)}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs text-gray-500">Máximo (W)</label>
+                    <Input
+                      type="number"
+                      value={config.alerts.power_alert.max_value || ''}
+                      onChange={(e) => handleUpdateAlertThreshold('power_alert', 'max_value', parseFloat(e.target.value))}
+                      disabled={!config.alerts.power_alert.enabled}
+                      className="h-8"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Temperatura Compresor */}
+              <div className="border rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Temp. Compresor</span>
+                  <Switch
+                    checked={config.alerts.temp_comp_max.enabled}
+                    onCheckedChange={(v) => handleUpdateAlertThreshold('temp_comp_max', 'enabled', v)}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs text-gray-500">Máxima (°C)</label>
+                    <Input
+                      type="number"
+                      value={config.alerts.temp_comp_max.max_value || ''}
+                      onChange={(e) => handleUpdateAlertThreshold('temp_comp_max', 'max_value', parseFloat(e.target.value))}
+                      disabled={!config.alerts.temp_comp_max.enabled}
+                      className="h-8"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
+  );
+}
