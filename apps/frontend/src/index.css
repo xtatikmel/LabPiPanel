@@ -1,0 +1,158 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Colores Institucionales ITM */
+    --itm-primary: 220 100% 19%;      /* #002060 - Azul marino */
+    --itm-secondary: 6 78% 57%;        /* #E74C3C - Rojo carmesí */
+    --itm-success: 145 63% 42%;        /* #27AE60 - Verde OK */
+    --itm-warning: 45 100% 51%;        /* #F1C40F - Amarillo */
+    --itm-background: 0 0% 96%;        /* #F5F5F5 - Gris claro */
+    --itm-text: 220 30% 15%;           /* Texto principal */
+    --itm-text-light: 0 0% 100%;       /* Texto claro */
+    
+    /* shadcn/ui theme override */
+    --background: 0 0% 96%;
+    --foreground: 220 30% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 30% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 30% 15%;
+    --primary: 220 100% 19%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 6 78% 57%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 20% 92%;
+    --muted-foreground: 220 10% 40%;
+    --accent: 145 63% 42%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 6 78% 57%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 30% 80%;
+    --input: 220 30% 85%;
+    --ring: 220 100% 19%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    font-family: 'Roboto', 'Segoe UI', sans-serif;
+  }
+  
+  body {
+    @apply bg-[#F5F5F5] text-foreground antialiased;
+    font-family: 'Roboto', 'Segoe UI', sans-serif;
+  }
+}
+
+@layer components {
+  /* Header ITM */
+  .itm-header {
+    @apply bg-[#002060] text-white shadow-lg;
+  }
+  
+  /* Cards ITM */
+  .itm-card {
+    @apply bg-white rounded-lg shadow-md border border-[#002060]/20;
+  }
+  
+  .itm-card-header {
+    @apply bg-[#002060] text-white px-4 py-3 rounded-t-lg font-medium;
+  }
+  
+  /* Botones ITM */
+  .itm-btn-primary {
+    @apply bg-[#002060] hover:bg-[#003080] text-white font-medium px-4 py-2 rounded transition-colors;
+  }
+  
+  .itm-btn-danger {
+    @apply bg-[#E74C3C] hover:bg-[#C0392B] text-white font-medium px-4 py-2 rounded transition-colors;
+  }
+  
+  .itm-btn-success {
+    @apply bg-[#27AE60] hover:bg-[#229954] text-white font-medium px-4 py-2 rounded transition-colors;
+  }
+  
+  .itm-btn-secondary {
+    @apply bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded transition-colors;
+  }
+  
+  /* Inputs ITM */
+  .itm-input {
+    @apply border-2 border-[#002060]/30 rounded px-3 py-2 focus:border-[#002060] focus:outline-none transition-colors;
+  }
+  
+  /* Indicadores */
+  .itm-indicator {
+    @apply w-3 h-3 rounded-full;
+  }
+  
+  .itm-indicator-on {
+    @apply bg-[#27AE60] shadow-[0_0_8px_rgba(39,174,96,0.6)];
+  }
+  
+  .itm-indicator-off {
+    @apply bg-gray-400;
+  }
+  
+  .itm-indicator-error {
+    @apply bg-[#E74C3C] shadow-[0_0_8px_rgba(231,76,60,0.6)];
+  }
+  
+  /* Paneles */
+  .itm-panel {
+    @apply bg-white rounded-lg shadow-md overflow-hidden border border-[#002060]/20;
+  }
+  
+  /* Status bar */
+  .itm-status-bar {
+    @apply bg-[#002060] text-white text-sm px-4 py-2 flex items-center justify-between;
+  }
+  
+  /* Animaciones */
+  @keyframes pulse-recording {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  
+  .animate-recording {
+    animation: pulse-recording 1s ease-in-out infinite;
+  }
+  
+  /* Scrollbar personalizada */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-200;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-[#002060]/40 rounded;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-[#002060]/60;
+  }
+}
+
+/* Chart containers */
+.chart-container {
+  @apply relative w-full h-full min-h-[250px];
+}
+
+/* Grid de dashboard */
+.dashboard-grid {
+  @apply grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4;
+}

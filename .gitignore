@@ -1,0 +1,95 @@
+# ══════════════════════════════════════════════════════════════
+# LabPiPanel - Git Ignore
+# Arquitectura Profesional Monorepo
+# ══════════════════════════════════════════════════════════════
+
+# ──────────────────────────────────────────────────────────────
+# Python (Backend)
+# ──────────────────────────────────────────────────────────────
+apps/backend/__pycache__/
+apps/backend/**/__pycache__/
+apps/backend/**/*.pyc
+apps/backend/**/*.pyo
+apps/backend/**/*.pyd
+apps/backend/.Python
+apps/backend/env/
+apps/backend/venv/
+apps/backend/.venv/
+apps/backend/*.egg-info/
+apps/backend/dist/
+apps/backend/build/
+
+# ──────────────────────────────────────────────────────────────
+# Node.js (Frontend)
+# ──────────────────────────────────────────────────────────────
+apps/frontend/node_modules/
+apps/frontend/.vite/
+apps/frontend/dist/
+apps/frontend/.cache/
+apps/frontend/*.log
+apps/frontend/.env.local
+apps/frontend/.env.*.local
+
+# ──────────────────────────────────────────────────────────────
+# Archivos de Datos
+# ──────────────────────────────────────────────────────────────
+apps/backend/recordings/*.csv
+apps/backend/recordings/*.json
+*.csv
+*.dat
+*.log
+
+# ──────────────────────────────────────────────────────────────
+# Archivos Temporales
+# ──────────────────────────────────────────────────────────────
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ──────────────────────────────────────────────────────────────
+# IDEs
+# ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ──────────────────────────────────────────────────────────────
+# Docker
+# ──────────────────────────────────────────────────────────────
+*.env
+.env
+
+# ──────────────────────────────────────────────────────────────
+# Archivos de Sistema
+# ──────────────────────────────────────────────────────────────
+*.pid
+*.sock
+
+# ──────────────────────────────────────────────────────────────
+# Documentación Temporal (mantener docs/guias/)
+# ──────────────────────────────────────────────────────────────
+*.draft.md
+
+# ──────────────────────────────────────────────────────────────
+# Coverage y Testing
+# ──────────────────────────────────────────────────────────────
+.coverage
+htmlcov/
+.pytest_cache/
+.nyc_output/
+
+# ══════════════════════════════════════════════════════════════
+# Archivos Importantes a NO Ignorar
+# ══════════════════════════════════════════════════════════════
+!apps/backend/requirements.txt
+!apps/frontend/package.json
+!apps/frontend/package-lock.json
+!Makefile
+!README.md
+!scripts/*.ps1
+!scripts/*.sh
