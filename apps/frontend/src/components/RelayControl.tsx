@@ -1,11 +1,14 @@
 import { useEffect } from 'react';
 import { ToggleLeft, ToggleRight } from 'lucide-react';
 import { useRelays } from '@/hooks/useRelays';
+import { useConfig } from '@/hooks/useConfig';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RELAY_NAMES } from '@/types';
 
 export function RelayControl() {
   const { states, toggleRelay, fetchStatus } = useRelays();
+  const { config } = useConfig();
+  const relayNames = config.relay_labels?.length === 4 ? config.relay_labels : RELAY_NAMES;
 
   useEffect(() => {
     fetchStatus();
@@ -37,7 +40,7 @@ export function RelayControl() {
                 <div className="text-left">
                   <div className="text-xs text-gray-500 mb-1">RELÉ {index + 1}</div>
                   <div className={`font-semibold ${state ? 'text-[#27AE60]' : 'text-gray-700'}`}>
-                    {RELAY_NAMES[index]}
+                    {relayNames[index]}
                   </div>
                 </div>
                 <div className="flex flex-col items-center gap-1">
@@ -73,7 +76,7 @@ export function RelayControl() {
                     ? 'bg-[#27AE60] text-white'
                     : 'bg-gray-300 text-gray-600'
                 }`}
-                title={RELAY_NAMES[i]}
+                title={relayNames[i]}
               >
                 R{i + 1}
               </div>

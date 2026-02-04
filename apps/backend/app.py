@@ -69,9 +69,14 @@ def data_acquisition_loop():
             voltage, current = fuente.get_voltage_current()
             power = voltage * current
             
-            # Calcular temperaturas promedio
-            t_evap_avg = (temps[0] + temps[1] + temps[2]) / 3.0 if len(temps) >= 3 else 0.0
-            t_cond_avg = (temps[4] + temps[5] + temps[6]) / 3.0 if len(temps) >= 7 else 0.0
+            # Calcular temperaturas promedio según configuración de canales
+            def avg_for_group(indices):
+                valid = [temps[i] for i in indices if 0 <= i < len(temps)]
+                return sum(valid) / len(valid) if valid else 0.0
+
+            channel_groups = system_config.daq.channel_groups
+            t_evap_avg = avg_for_group(channel_groups.get("evaporador", []))
+            t_cond_avg = avg_for_group(channel_groups.get("condensador", []))
             
             # Calcular resistencia térmica
             delta_t = abs(t_cond_avg - t_evap_avg)
@@ -167,10 +172,32 @@ def config_daq():
             system_config.daq.sample_rate = float(data['sample_rate'])
         if 'channel_names' in data:
             system_config.daq.channel_names = data['channel_names']
+        if 'channel_groups' in data:
+            system_config.daq.channel_groups = data['channel_groups']
         if 'thermocouple_type' in data:
             system_config.daq.thermocouple_type = data['thermocouple_type']
         
         return jsonify({'success': True, 'config': asdict(system_config.daq)})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 400
+
+
+@app.route('/api/config/relays', methods=['GET', 'POST'])
+def config_relays():
+    """Obtener/actualizar etiquetas de relés"""
+    global system_config
+
+    if request.method == 'GET':
+        return jsonify({'relay_labels': system_config.relay_labels})
+
+    try:
+        data = request.get_json()
+        labels = data.get('relay_labels', [])
+        if not isinstance(labels, list) or len(labels) != 4:
+            return jsonify({'success': False, 'message': 'relay_labels debe tener 4 elementos'}), 400
+
+        system_config.relay_labels = labels
+        return jsonify({'success': True, 'relay_labels': system_config.relay_labels})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 400
 

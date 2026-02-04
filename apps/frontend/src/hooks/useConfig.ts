@@ -15,8 +15,18 @@ export interface DAQConfig {
   sample_rate: number;
   num_channels: number;
   channel_names: string[];
+  channel_groups: {
+    evaporador: number[];
+    condensador: number[];
+    compresor: number[];
+    ambiente: number[];
+  };
   thermocouple_type: string;
   units: string;
+}
+
+export interface RelayConfig {
+  relay_labels: string[];
 }
 
 export interface AlertThreshold {
@@ -41,6 +51,7 @@ export interface SystemConfig {
   fuente: FuenteConfig;
   daq: DAQConfig;
   alerts: AlertConfig;
+  relay_labels: string[];
 }
 
 const defaultConfig: SystemConfig = {
@@ -59,6 +70,12 @@ const defaultConfig: SystemConfig = {
       'T_Evap_In', 'T_Evap_Mid', 'T_Evap_Out', 'T_Comp',
       'T_Cond_In', 'T_Cond_Mid', 'T_Cond_Out', 'T_Ambient'
     ],
+    channel_groups: {
+      evaporador: [0, 1, 2],
+      condensador: [4, 5, 6],
+      compresor: [3],
+      ambiente: [7]
+    },
     thermocouple_type: 'T',
     units: 'C'
   },
@@ -71,7 +88,13 @@ const defaultConfig: SystemConfig = {
     temp_evap_min: { enabled: true, min_value: -30, max_value: 50, description: 'Temp. evaporador fuera de rango' },
     temp_cond_max: { enabled: true, min_value: 0, max_value: 80, description: 'Temp. condensador alta' },
     temp_comp_max: { enabled: true, min_value: 0, max_value: 90, description: 'Temp. compresor crítica' }
-  }
+  },
+  relay_labels: [
+    'Compresor',
+    'Ventilador Cond',
+    'Ventilador Evap',
+    'Bomba'
+  ]
 };
 
 export function useConfig() {
@@ -164,6 +187,29 @@ export function useConfig() {
     }
   }, []);
 
+  const updateRelayConfig = useCallback(async (relayConfig: Partial<RelayConfig>) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE}/config/relays`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(relayConfig)
+      });
+      const data = await response.json();
+      if (data.success) {
+        setConfig(prev => ({ ...prev, ...relayConfig }));
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      }
+      return data.success;
+    } catch (err) {
+      console.error('Error updating relay config:', err);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     config,
     loading,
@@ -171,6 +217,7 @@ export function useConfig() {
     fetchConfig,
     updateFuenteConfig,
     updateDAQConfig,
-    updateAlertConfig
+    updateAlertConfig,
+    updateRelayConfig
   };
 }

@@ -1,14 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CHANNEL_NAMES } from '@/types';
 import { Thermometer, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface TemperaturePanelProps {
   temperatures: number[];
   tEvapAvg: number;
   tCondAvg: number;
+  channelNames: string[];
 }
 
-export function TemperaturePanel({ temperatures, tEvapAvg, tCondAvg }: TemperaturePanelProps) {
+export function TemperaturePanel({ temperatures, tEvapAvg, tCondAvg, channelNames }: TemperaturePanelProps) {
   const getTempColor = (temp: number) => {
     if (temp < 0) return 'text-blue-600';
     if (temp < 20) return 'text-cyan-600';
@@ -70,7 +70,7 @@ export function TemperaturePanel({ temperatures, tEvapAvg, tCondAvg }: Temperatu
                 {temp.toFixed(1)}°C
               </div>
               <div className="text-[9px] text-gray-400 truncate">
-                {CHANNEL_NAMES[index]}
+                {channelNames[index] || `CH${index}`}
               </div>
             </div>
           ))}

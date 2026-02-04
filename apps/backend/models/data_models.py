@@ -64,6 +64,12 @@ class DAQConfig:
         "T_Evap_In", "T_Evap_Mid", "T_Evap_Out", "T_Comp",
         "T_Cond_In", "T_Cond_Mid", "T_Cond_Out", "T_Ambient"
     ])
+    channel_groups: Dict[str, List[int]] = field(default_factory=lambda: {
+        "evaporador": [0, 1, 2],
+        "condensador": [4, 5, 6],
+        "compresor": [3],
+        "ambiente": [7]
+    })
     thermocouple_type: str = "T"  # Tipo T (Cobre-Constantán)
     units: str = "C"  # Celsius
 
@@ -112,6 +118,12 @@ class SystemConfig:
     fuente: FuenteConfig = field(default_factory=FuenteConfig)
     daq: DAQConfig = field(default_factory=DAQConfig)
     alerts: AlertConfig = field(default_factory=AlertConfig)
+    relay_labels: List[str] = field(default_factory=lambda: [
+        "Compresor",
+        "Ventilador Cond",
+        "Ventilador Evap",
+        "Bomba"
+    ])
 
 
 @dataclass

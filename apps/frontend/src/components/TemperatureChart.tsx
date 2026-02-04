@@ -12,7 +12,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CHANNEL_NAMES, CHART_COLORS } from '@/types';
+import { CHART_COLORS } from '@/types';
 import { Thermometer } from 'lucide-react';
 
 ChartJS.register(
@@ -31,12 +31,13 @@ interface TemperatureChartProps {
     labels: string[];
     temperatures: number[][];
   };
+  channelNames: string[];
 }
 
-export function TemperatureChart({ data }: TemperatureChartProps) {
+export function TemperatureChart({ data, channelNames }: TemperatureChartProps) {
   const chartData = {
     labels: data.labels,
-    datasets: CHANNEL_NAMES.map((name, index) => ({
+    datasets: channelNames.map((name, index) => ({
       label: name,
       data: data.temperatures[index] || [],
       borderColor: CHART_COLORS.temperature[index % CHART_COLORS.temperature.length],

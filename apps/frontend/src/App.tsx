@@ -12,6 +12,7 @@ import { StatusBar } from '@/components/StatusBar';
 import { ConfigPanel } from '@/components/ConfigPanel';
 import { AlertsPanel } from '@/components/AlertsPanel';
 import { useLiveData } from '@/hooks/useLiveData';
+import { useConfig } from '@/hooks/useConfig';
 
 // Historial de datos para gráficas
 const MAX_POINTS = 300; // 30 segundos a 10 Hz
@@ -27,6 +28,8 @@ interface ChartData {
 
 function App() {
   const { data, connected } = useLiveData();
+  const { config } = useConfig();
+  const channelNames = config.daq.channel_names?.length ? config.daq.channel_names : Array.from({ length: 8 }, (_, i) => `CH${i}`);
   const [chartData, setChartData] = useState<ChartData>({
     labels: [],
     temperatures: [[], [], [], [], [], [], [], []],
@@ -92,12 +95,13 @@ function App() {
             temperatures={data.temperatures}
             tEvapAvg={data.t_evap_avg}
             tCondAvg={data.t_cond_avg}
+            channelNames={channelNames}
           />
         </div>
 
         {/* Fila 4: Gráficas */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <TemperatureChart data={chartData} />
+          <TemperatureChart data={chartData} channelNames={channelNames} />
           <VoltageCurrentChart data={chartData} />
           <PowerChart data={chartData} />
           <ThermalResistanceChart data={chartData} />
