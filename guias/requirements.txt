@@ -1,0 +1,9 @@
+RPi.GPIO
+telnetlib3
+flask
+usb
+mcculw
+flask-socketio 
+eventlet
+pyusb
+pexpect

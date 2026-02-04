@@ -1,0 +1,152 @@
+═══════════════════════════════════════════════════════════════════════════════
+                      📚 DOCUMENTACIÓN CENTRALIZADA
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ HECHO: Toda la documentación está organizada en una sola carpeta
+
+📁 UBICACIÓN PRINCIPAL:
+   └─ /guias/
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 CÓMO ACCEDER
+
+  OPCIÓN 1: Explorador de Windows
+  ├─ Navega a: E:\GIT\LabPiPanel\guias
+  └─ Abre: README.md
+
+  OPCIÓN 2: VS Code
+  ├─ File → Open Folder
+  ├─ Selecciona: E:\GIT\LabPiPanel\guias
+  └─ Lee: README.md
+
+  OPCIÓN 3: PowerShell
+  ├─ cd E:\GIT\LabPiPanel\guias
+  ├─ ii .    (abre explorador)
+  └─ code .  (abre VS Code)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📖 LO QUE ENCONTRARÁS
+
+  📄 28 DOCUMENTOS ORGANIZADOS INCLUYENDO:
+
+  ⚡ RÁPIDO (5-30 min):
+     • PRESENTACION_EJECUTIVA_2MIN.md      (¿Qué es LabPiPanel?)
+     • QUICK_REFERENCE_CARD.md             (Referencia rápida)
+     • GUIA_RAPIDA.txt                     (Instalación)
+
+  🏗️  ARQUITECTURA (30-60 min):
+     • ARQUITECTURA_DETALLADA.md           (Cómo funciona todo)
+     • API.md                              (Endpoints)
+     • ANEXO_VISUAL_DIAGRAMAS.md           (Diagramas)
+
+  🚀 IMPLEMENTACIÓN (2-4 horas):
+     • PLAN_ACCION_KIMI_INTEGRADO.md       (Plan de 4 fases)
+     • CHECKLIST_INTEGRACION_KIMI.md       (150+ validaciones)
+     • GUIA_PRACTICA_EXTRACCION_KIMI.md    (Paso a paso)
+
+  🔌 HARDWARE (30-60 min):
+     • HARDWARE.md                         (Especificaciones)
+     • GUIA_ITM.md                         (Laboratorio ITM)
+
+  📊 AUDITORÍA (1-2 horas):
+     • AUDITORIA_TECNICA.md                (Revisión técnica)
+     • RESUMEN_EJECUTIVO_KIMI.md           (Estado actual)
+     • MATRIZ_SITUACION.md                 (Comparativa)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🚀 EMPEZAR EN 3 PASOS
+
+  1️⃣  ABRE la carpeta /guias
+      └─ E:\GIT\LabPiPanel\guias\
+
+  2️⃣  LEE el archivo README.md
+      └─ Te guía hacia todo lo que necesitas
+
+  3️⃣  ¡LISTO! 
+      └─ Acceso completo a toda la documentación
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📂 ESTRUCTURA
+
+  /guias/
+  ├── 📄 README.md                    ← COMIENZA AQUÍ
+  ├── 📄 00_INDICE_MAESTRO.md         ← Índice completo
+  │
+  ├── PRESENTACION_EJECUTIVA_2MIN.md
+  ├── ARQUITECTURA_DETALLADA.md
+  ├── PLAN_ACCION_KIMI_INTEGRADO.md
+  ├── CHECKLIST_INTEGRACION_KIMI.md
+  ├── API.md
+  ├── HARDWARE.md
+  ├── QUICK_REFERENCE_CARD.md
+  │
+  └── [19 documentos más...]
+
+═══════════════════════════════════════════════════════════════════════════════
+
+💡 TIPS DE BÚSQUEDA
+
+  En VS Code:
+  ├─ Ctrl+P      → Buscar archivo por nombre
+  ├─ Ctrl+F      → Buscar dentro del archivo
+  ├─ Ctrl+Shift+F → Buscar en todos los archivos
+  └─ Ctrl+K V    → Vista previa en split
+
+  En PowerShell:
+  ├─ Select-String "palabra" *.md
+  └─ Get-ChildItem *.md | Sort-Object Name
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 DOCUMENTOS ESENCIALES
+
+  ┌─ PARA PRINCIPIANTES
+  │  └─ guias/PRESENTACION_EJECUTIVA_2MIN.md
+  │
+  ├─ PARA DESARROLLADORES
+  │  └─ guias/ARQUITECTURA_DETALLADA.md + API.md
+  │
+  ├─ PARA IMPLEMENTAR
+  │  └─ guias/PLAN_ACCION_KIMI_INTEGRADO.md
+  │
+  ├─ PARA REFERENCIA RÁPIDA
+  │  └─ guias/QUICK_REFERENCE_CARD.md
+  │
+  └─ PARA HARDWARE
+     └─ guias/HARDWARE.md + GUIA_ITM.md
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✨ VENTAJAS DE ESTA ORGANIZACIÓN
+
+  ✅ Todo en un lugar
+  ✅ Fácil de navegar
+  ✅ Índices para todas las necesidades
+  ✅ Rutas de aprendizaje sugeridas
+  ✅ Búsqueda centralizada
+  ✅ Documentación profesional
+  ✅ 80,000+ palabras
+  ✅ 28 documentos completos
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔗 ARCHIVOS DE ACCESO EN LA RAÍZ
+
+  Este archivo se encuentra en:
+  └─ E:\GIT\LabPiPanel\DOCUMENTACION.md
+
+  Otros archivos de navegación:
+  ├─ GUIA_DOCUMENTACION.md
+  └─ DOCUMENTACION.md
+
+═══════════════════════════════════════════════════════════════════════════════
+
+¿LISTO?
+
+  👉 Abre: E:\GIT\LabPiPanel\guias\README.md
+
+═══════════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,61 @@
+# Requisitos de Desarrollo - LabPiPanel
+# Instalar con: pip install -r requirements-dev.txt
+
+# ============================================================
+# Testing & Coverage
+# ============================================================
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+pytest-asyncio>=0.21.0
+
+# ============================================================
+# Code Quality & Linting
+# ============================================================
+black>=23.0.0           # Code formatter
+flake8>=5.0.0           # Linting
+flake8-docstrings>=1.7  # Check docstrings
+mypy>=1.0.0             # Type checking
+isort>=5.12.0           # Import sorting
+pylint>=2.16.0          # Advanced linting
+
+# ============================================================
+# Pre-commit & Git Hooks
+# ============================================================
+pre-commit>=3.0.0
+
+# ============================================================
+# Documentation
+# ============================================================
+sphinx>=5.0.0           # Documentation generator
+sphinx-rtd-theme>=1.2.0 # ReadTheDocs theme
+myst-parser>=0.18.0     # Markdown support
+
+# ============================================================
+# Debugging & Development
+# ============================================================
+ipython>=8.0.0
+ipdb>=0.13.0
+flask-debugtoolbar>=0.13.0
+
+# ============================================================
+# Performance & Profiling
+# ============================================================
+py-spy>=0.3.14
+memory-profiler>=0.60.0
+
+# ============================================================
+# Security
+# ============================================================
+safety>=2.3.0           # Dependency vulnerability scanner
+bandit>=1.7.4           # Security linting
+
+# ============================================================
+# DevOps & Deployment
+# ============================================================
+gunicorn>=20.1.0        # Production WSGI server
+python-dotenv>=1.0.0    # .env file loader
+docker>=6.0.0           # Docker SDK
+
+# Base requirements (también incluidos)
+# ver requirements.txt
