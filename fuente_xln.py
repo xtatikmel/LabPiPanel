@@ -4,10 +4,14 @@ Comunicación vía Telnet (puerto 5024) con comandos SCPI
 Instituto Tecnológico Metropolitano (ITM) - Medellín, Colombia
 """
 
-import telnetlib
 import logging
 import time
 from typing import Tuple, Optional
+
+try:
+    import telnetlib
+except ModuleNotFoundError:
+    import telnetlib3.telnetlib as telnetlib
 
 logger = logging.getLogger(__name__)
 
