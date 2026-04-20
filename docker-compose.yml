@@ -1,0 +1,199 @@
+version: '3.8'
+
+services:
+  labpipanel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: labpipanel
+    hostname: labpipanel
+    restart: unless-stopped
+    
+    # Puertos
+    ports:
+      - "5000:5000"   # API Flask
+      - "3000:3000"   # Frontend Next.js
+    
+    # Variables de entorno
+    environment:
+      FLASK_HOST: 0.0.0.0
+      FLASK_PORT: 5000
+      FLASK_DEBUG: "False"
+      XLN_HOST: "192.168.1.100"
+      XLN_PORT: "5024"
+      XLN_TIMEOUT: "10"
+      DAQ_TIMEOUT: "10"
+      LOG_LEVEL: "INFO"
+      TIMEZONE: "America/Bogota"
+      PYTHONUNBUFFERED: "1"
+    
+    # Volúmenes
+    volumes:
+      # Hardware (Raspberry Pi solo)
+      - /dev/bus/usb:/dev/bus/usb:rw          # DAQ USB
+      - /sys/class/gpio:/sys/class/gpio:rw    # GPIO relés
+      # Datos persistentes
+      - ./logs:/app/logs
+      - ./results:/app/results
+      # (Opcional) Configuración externa
+      - ./.env:/app/.env:ro
+    
+    # Dispositivos
+    devices:
+      - /dev/mem:/dev/mem                     # GPIO (Raspberry Pi)
+      - /dev/gpiomem:/dev/gpiomem             # GPIO memory (Raspberry Pi)
+    
+    # Permisos
+    privileged: true  # Necesario para GPIO/USB en Raspberry Pi
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Networks
+    networks:
+      - labpipanel_network
+    
+    # Labels
+    labels:
+      com.example.description: "LabPiPanel - Thermal Laboratory Control System"
+
+  # ============================================================
+  # NGINX Reverse Proxy (Opcional, para producción)
+  # ============================================================
+  nginx:
+    image: nginx:latest
+    container_name: labpipanel_nginx
+    restart: unless-stopped
+    
+    ports:
+      - "80:80"
+      - "443:443"
+    
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro  # Certificados SSL
+    
+    depends_on:
+      - labpipanel
+    
+    networks:
+      - labpipanel_network
+    
+    # Descomenta solo si necesitas reverse proxy
+    # profiles:
+    #   - production
+
+  # ============================================================
+  # PROMETHEUS Metrics (Opcional)
+  # ============================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: labpipanel_prometheus
+    restart: unless-stopped
+    
+    ports:
+      - "9090:9090"
+    
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    
+    networks:
+      - labpipanel_network
+    
+    # Descomenta solo si usas Prometheus
+    # profiles:
+    #   - monitoring
+
+  # ============================================================
+  # GRAFANA Dashboards (Opcional)
+  # ============================================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: labpipanel_grafana
+    restart: unless-stopped
+    
+    ports:
+      - "3001:3000"
+    
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "admin"
+      GF_INSTALL_PLUGINS: "grafana-piechart-panel"
+    
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    
+    depends_on:
+      - prometheus
+    
+    networks:
+      - labpipanel_network
+    
+    # Descomenta solo si usas Grafana
+    # profiles:
+    #   - monitoring
+
+# ============================================================
+# VOLUMES
+# ============================================================
+volumes:
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+# ============================================================
+# NETWORKS
+# ============================================================
+networks:
+  labpipanel_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+# ============================================================
+# NOTES
+# ============================================================
+# 
+# Ejecución básica (sin monitoring):
+#   docker-compose up -d
+#
+# Ejecución con monitoring (Prometheus + Grafana):
+#   docker-compose --profile monitoring up -d
+#
+# Ejecución con everything (incluyendo Nginx):
+#   docker-compose --profile production --profile monitoring up -d
+#
+# Ver logs:
+#   docker-compose logs -f labpipanel
+#   docker-compose logs -f [service_name]
+#
+# Detener servicios:
+#   docker-compose down
+#
+# Detener y eliminar volúmenes:
+#   docker-compose down -v
+#
+# Configuración Raspberry Pi:
+#   - Ejecutar con --privileged para acceso a GPIO/USB
+#   - Verificar permisos de usuario: sudo usermod -aG docker $USER
+#   - En Raspberry Pi OS, puede ser necesario: sudo apt-get install docker.io docker-compose
+#
