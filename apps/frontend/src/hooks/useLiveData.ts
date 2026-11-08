@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { LiveData, SystemStatus } from '@/types';
-
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE } from '@/lib/api';
 
 const defaultLiveData: LiveData = {
   timestamp: '',

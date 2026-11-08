@@ -27,6 +27,7 @@ class RecordingManager:
         self.pause_time: Optional[float] = None
         self.total_paused: float = 0.0
         self.samples_recorded: int = 0
+        self.last_duration: float = 0.0
         self._file_handle = None
         self._csv_writer = None
         
@@ -64,6 +65,7 @@ class RecordingManager:
             self.start_time = time.time()
             self.total_paused = 0.0
             self.samples_recorded = 0
+            self.last_duration = 0.0
             self.is_recording = True
             self.is_paused = False
             
@@ -82,9 +84,12 @@ class RecordingManager:
             return False
         
         try:
-            self._cleanup()
-            
+            # Calcular la duración antes de limpiar start_time
             duration = self.get_elapsed_time()
+            self.last_duration = duration
+
+            self._cleanup()
+
             logger.info(f"Grabación detenida. Duración: {duration:.1f}s, Muestras: {self.samples_recorded}")
             return True
             
@@ -135,9 +140,13 @@ class RecordingManager:
     
     def get_elapsed_time(self) -> float:
         """Obtener tiempo transcurrido de grabación (segundos)"""
-        if not self.is_recording and self.start_time is None:
+        if not self.is_recording:
+            # Conservar la duración de la última grabación tras stop()
+            return self.last_duration
+
+        if self.start_time is None:
             return 0.0
-        
+
         if self.is_paused and self.pause_time:
             return self.pause_time - self.start_time - self.total_paused
         

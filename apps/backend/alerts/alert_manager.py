@@ -69,7 +69,7 @@ class AlertManager:
         new_alerts = []
         
         # Verificar voltaje
-        if self.config.voltage_alert.enabled:
+        if self.config.voltage_alert.enabled and self.config.voltage_alert.max_value is not None:
             if data.voltage > self.config.voltage_alert.max_value:
                 alert = self._create_alert(
                     'danger',
@@ -81,7 +81,7 @@ class AlertManager:
                 new_alerts.append(alert)
         
         # Verificar corriente
-        if self.config.current_alert.enabled:
+        if self.config.current_alert.enabled and self.config.current_alert.max_value is not None:
             if data.current > self.config.current_alert.max_value:
                 alert = self._create_alert(
                     'danger',
@@ -93,7 +93,7 @@ class AlertManager:
                 new_alerts.append(alert)
         
         # Verificar potencia
-        if self.config.power_alert.enabled:
+        if self.config.power_alert.enabled and self.config.power_alert.max_value is not None:
             if data.power > self.config.power_alert.max_value:
                 alert = self._create_alert(
                     'danger',
@@ -106,7 +106,7 @@ class AlertManager:
         
         # Verificar temperatura evaporador (promedio)
         if self.config.temp_evap_min.enabled:
-            if data.t_evap_avg < self.config.temp_evap_min.min_value:
+            if self.config.temp_evap_min.min_value is not None and data.t_evap_avg < self.config.temp_evap_min.min_value:
                 alert = self._create_alert(
                     'warning',
                     f"Temp. evaporador baja: {data.t_evap_avg:.1f}°C < {self.config.temp_evap_min.min_value}°C",
@@ -115,7 +115,7 @@ class AlertManager:
                     self.config.temp_evap_min.min_value
                 )
                 new_alerts.append(alert)
-            elif data.t_evap_avg > self.config.temp_evap_min.max_value:
+            elif self.config.temp_evap_min.max_value is not None and data.t_evap_avg > self.config.temp_evap_min.max_value:
                 alert = self._create_alert(
                     'warning',
                     f"Temp. evaporador alta: {data.t_evap_avg:.1f}°C > {self.config.temp_evap_min.max_value}°C",
@@ -126,7 +126,7 @@ class AlertManager:
                 new_alerts.append(alert)
         
         # Verificar temperatura condensador
-        if self.config.temp_cond_max.enabled:
+        if self.config.temp_cond_max.enabled and self.config.temp_cond_max.max_value is not None:
             if data.t_cond_avg > self.config.temp_cond_max.max_value:
                 alert = self._create_alert(
                     'danger',
@@ -138,7 +138,7 @@ class AlertManager:
                 new_alerts.append(alert)
         
         # Verificar temperatura compresor (canal 3)
-        if self.config.temp_comp_max.enabled and len(data.temperatures) > 3:
+        if self.config.temp_comp_max.enabled and self.config.temp_comp_max.max_value is not None and len(data.temperatures) > 3:
             t_comp = data.temperatures[3]
             if t_comp > self.config.temp_comp_max.max_value:
                 alert = self._create_alert(
@@ -150,6 +150,11 @@ class AlertManager:
                 )
                 new_alerts.append(alert)
         
+        # Evitar duplicados: una sola alerta activa por parámetro.
+        # Sin esto, el loop de adquisición (100 ms) llenaba el historial.
+        active_parameters = {alert.parameter for alert in self.active_alerts.values()}
+        new_alerts = [a for a in new_alerts if a.parameter not in active_parameters]
+
         # Agregar alertas activas
         for alert in new_alerts:
             self.active_alerts[alert.id] = alert

@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import type { RecordingStatus, RecordingFile } from '@/types';
-
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE } from '@/lib/api';
 
 export function useRecording() {
   const [status, setStatus] = useState<RecordingStatus | null>(null);

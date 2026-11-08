@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE } from '@/lib/api';
 
 export interface FuenteConfig {
   host: string;

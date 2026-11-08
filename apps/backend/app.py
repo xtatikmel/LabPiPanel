@@ -6,6 +6,7 @@ Flask Backend Server v1.0
 
 from flask import Flask, jsonify, request, Response, send_from_directory
 from flask_cors import CORS
+import copy
 import threading
 import time
 import json
@@ -13,13 +14,14 @@ import logging
 import os
 from datetime import datetime
 from dataclasses import asdict
+from pathlib import Path
 
 from hardware.daq_reader import DAQReader
 from hardware.fuente_xln import FuenteXLN
 from hardware.gpio_controller import GPIOController
 from recording.recording_manager import RecordingManager
 from alerts.alert_manager import AlertManager
-from models.data_models import LiveData, SystemStatus, SystemConfig, FuenteConfig, DAQConfig, AlertConfig
+from models.data_models import LiveData, SystemStatus, SystemConfig, FuenteConfig, DAQConfig
 
 # Configuración de logging
 logging.basicConfig(
@@ -28,8 +30,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Configurar Flask para servir frontend estático
-app = Flask(__name__, static_folder='../', static_url_path='')
+# Rutas del proyecto
+BASE_DIR = Path(__file__).resolve().parent
+FRONTEND_DIST = BASE_DIR.parent / "frontend" / "dist"
+
+# Configurar Flask para servir el frontend compilado (apps/frontend/dist)
+app = Flask(__name__, static_folder=None)
 CORS(app)
 
 # Instancias de hardware (simuladas para demo)
@@ -205,32 +211,43 @@ def config_relays():
 @app.route('/api/config/alerts', methods=['GET', 'POST'])
 def config_alerts():
     """Obtener/actualizar configuración de alertas"""
+    global system_config
+
     if request.method == 'GET':
         return jsonify(asdict(alert_manager.get_config()))
-    
+
     try:
-        data = request.get_json()
-        new_config = AlertConfig()
-        
+        data = request.get_json() or {}
+
+        # Partimos de la configuración actual para que un POST parcial no
+        # reinicie los umbrales que no se envían.
+        new_config = copy.deepcopy(alert_manager.get_config())
+
         if 'enabled' in data:
             new_config.enabled = bool(data['enabled'])
         if 'sound_enabled' in data:
             new_config.sound_enabled = bool(data['sound_enabled'])
-        
+
         # Actualizar umbrales individuales
-        for key in ['voltage_alert', 'current_alert', 'power_alert', 
+        for key in ['voltage_alert', 'current_alert', 'power_alert',
                     'temp_evap_min', 'temp_cond_max', 'temp_comp_max']:
-            if key in data:
-                threshold_data = data[key]
-                threshold = getattr(new_config, key)
-                if 'enabled' in threshold_data:
-                    threshold.enabled = bool(threshold_data['enabled'])
-                if 'min_value' in threshold_data:
-                    threshold.min_value = float(threshold_data['min_value']) if threshold_data['min_value'] is not None else None
-                if 'max_value' in threshold_data:
-                    threshold.max_value = float(threshold_data['max_value']) if threshold_data['max_value'] is not None else None
-        
+            if key not in data:
+                continue
+
+            threshold_data = data[key] or {}
+            threshold = getattr(new_config, key)
+            if 'enabled' in threshold_data:
+                threshold.enabled = bool(threshold_data['enabled'])
+            if 'min_value' in threshold_data:
+                threshold.min_value = float(threshold_data['min_value']) if threshold_data['min_value'] is not None else None
+            if 'max_value' in threshold_data:
+                threshold.max_value = float(threshold_data['max_value']) if threshold_data['max_value'] is not None else None
+
         alert_manager.set_config(new_config)
+        # Mantener una única fuente de verdad: /api/config también debe
+        # reflejar los cambios hechos desde /api/config/alerts.
+        system_config.alerts = new_config
+
         return jsonify({'success': True, 'config': asdict(new_config)})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 400
@@ -597,6 +614,10 @@ def stop_acquisition():
 def before_request():
     """Asegurar que el thread de adquisición esté corriendo"""
     global thread_running
+    # En tests no arrancamos hardware (aunque sea simulado) para mantener
+    # las respuestas deterministas.
+    if app.config.get('TESTING'):
+        return
     if not thread_running:
         start_acquisition()
 
@@ -605,14 +626,42 @@ def before_request():
 
 @app.route('/')
 def serve_index():
-    """Servir la aplicación React"""
-    return send_from_directory('../', 'index.html')
+    """Servir la aplicación React compilada"""
+    index = FRONTEND_DIST / 'index.html'
+    if not index.is_file():
+        return jsonify({
+            'success': False,
+            'message': 'Frontend no compilado. Ejecuta "npm run build" en apps/frontend.'
+        }), 503
+    return send_from_directory(str(FRONTEND_DIST), 'index.html')
 
 
 @app.route('/<path:path>')
 def serve_static(path):
-    """Servir archivos estáticos"""
-    return send_from_directory('../', path)
+    """Servir archivos estáticos y rutas SPA"""
+    # No devolver el index para rutas de API desconocidas
+    if path == 'api' or path.startswith('api/'):
+        return jsonify({'success': False, 'message': 'Endpoint no encontrado'}), 404
+
+    dist_root = FRONTEND_DIST.resolve()
+    candidate = (FRONTEND_DIST / path).resolve()
+
+    # Evitar path traversal fuera de dist/
+    if dist_root not in candidate.parents and candidate != dist_root:
+        return jsonify({'success': False, 'message': 'Ruta no válida'}), 404
+
+    if candidate.is_file():
+        return send_from_directory(str(FRONTEND_DIST), path)
+
+    # Fallback SPA: cualquier ruta desconocida devuelve index.html
+    index = FRONTEND_DIST / 'index.html'
+    if index.is_file():
+        return send_from_directory(str(FRONTEND_DIST), 'index.html')
+
+    return jsonify({
+        'success': False,
+        'message': 'Frontend no compilado. Ejecuta "npm run build" en apps/frontend.'
+    }), 503
 
 
 if __name__ == '__main__':
@@ -624,8 +673,11 @@ if __name__ == '__main__':
     # Iniciar thread de adquisición
     start_acquisition()
     
+    host = os.getenv('HOST', os.getenv('FLASK_HOST', '0.0.0.0'))
+    port = int(os.getenv('PORT', os.getenv('FLASK_PORT', '5000')))
+
     try:
-        app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
+        app.run(host=host, port=port, debug=False, threaded=True)
     except KeyboardInterrupt:
         logger.info("Cerrando servidor...")
     finally:
