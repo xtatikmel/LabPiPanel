@@ -12,4 +12,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+    // Para Tailscale: reemplaza IP_LOCAL_TAILSCALE con tu IP de Tailscale
+    // hmr: {
+    //   host: 'IP_LOCAL_TAILSCALE',
+    //   port: 5173,
+    // },
+  },
 });
