@@ -16,9 +16,7 @@ from datetime import datetime
 from dataclasses import asdict
 from pathlib import Path
 
-from hardware.daq_reader import DAQReader
-from hardware.fuente_xln import FuenteXLN
-from hardware.gpio_controller import GPIOController
+from hardware_factory import get_daq_reader, get_fuente_xln, get_gpio_controller
 from recording.recording_manager import RecordingManager
 from alerts.alert_manager import AlertManager
 from models.data_models import LiveData, SystemStatus, SystemConfig, FuenteConfig, DAQConfig
@@ -38,10 +36,12 @@ FRONTEND_DIST = BASE_DIR.parent / "frontend" / "dist"
 app = Flask(__name__, static_folder=None)
 CORS(app)
 
-# Instancias de hardware (simuladas para demo)
-daq = DAQReader()
-fuente = FuenteXLN()
-gpio = GPIOController()
+# Instancias de hardware (demo o real según HARDWARE_REAL)
+# El hardware_factory detecta la variable de entorno y retorna
+# drivers simulados (default) o reales (si HARDWARE_REAL=true).
+daq = get_daq_reader()
+fuente = get_fuente_xln()
+gpio = get_gpio_controller()
 recorder = RecordingManager()
 alert_manager = AlertManager()
 
