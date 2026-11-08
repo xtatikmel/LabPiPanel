@@ -7,7 +7,7 @@ Write-Host "║  🚀 INICIANDO LABORATORIO TÉRMICO ITM     ║" -ForegroundCol
 Write-Host "╚════════════════════════════════════════════╝" -ForegroundColor Cyan
 Write-Host ""
 
-$rootPath = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+$rootPath = Split-Path -Parent $PSScriptRoot
 
 # Verificar que los directorios existan
 if (-not (Test-Path "$rootPath\apps\backend")) {
@@ -33,7 +33,12 @@ cd "$rootPath\apps\backend"
 Write-Host "📍 $((Get-Location).Path)" -ForegroundColor Yellow
 
 # Iniciar backend en background
-Start-Process powershell -ArgumentList "-NoExit -Command `"cd '$((Get-Location).Path)'; python app.py`"" -WindowStyle Normal
+$backendPython = Join-Path $rootPath 'apps\backend\.venv\Scripts\python.exe'
+if (-not (Test-Path $backendPython)) {
+    Write-Host "⚠️  No se encontró .venv; usando python del PATH" -ForegroundColor Yellow
+    $backendPython = 'python'
+}
+Start-Process powershell -ArgumentList "-NoExit -Command `"cd '$((Get-Location).Path)'; & '$backendPython' app.py`"" -WindowStyle Normal
 
 Write-Host "✓ Backend iniciándose..." -ForegroundColor Green
 Start-Sleep -Seconds 3

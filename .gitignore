@@ -4,8 +4,15 @@
 # ══════════════════════════════════════════════════════════════
 
 # ──────────────────────────────────────────────────────────────
-# Python (Backend)
+# Python (raíz y backend)
 # ──────────────────────────────────────────────────────────────
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
 apps/backend/__pycache__/
 apps/backend/**/__pycache__/
 apps/backend/**/*.pyc

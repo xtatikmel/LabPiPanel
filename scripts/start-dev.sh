@@ -32,9 +32,17 @@ echo ""
 
 cd "$ROOT_PATH/apps/backend"
 echo "📍 $(pwd)"
+
+if [ -x ".venv/bin/python" ]; then
+    PYTHON=".venv/bin/python"
+else
+    echo "⚠️  No se encontró .venv; usando python3 del PATH"
+    PYTHON="python3"
+fi
+
 echo "✓ Backend iniciándose..."
 
-python app.py &
+"$PYTHON" app.py &
 BACKEND_PID=$!
 
 sleep 3

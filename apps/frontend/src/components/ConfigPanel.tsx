@@ -1,22 +1,34 @@
 import { useEffect, useState } from 'react';
 import { Settings, Save, Server, Activity, Bell } from 'lucide-react';
 import { useConfig } from '@/hooks/useConfig';
+import type { AlertConfig, AlertThreshold } from '@/hooks/useConfig';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 
+type AlertKey =
+  | 'voltage_alert'
+  | 'current_alert'
+  | 'power_alert'
+  | 'temp_evap_min'
+  | 'temp_cond_max'
+  | 'temp_comp_max';
+
+type AlertField = 'enabled' | 'min_value' | 'max_value';
+type AlertValue = boolean | number | null;
+
+const defaultChannelGroups = {
+  evaporador: [0, 1, 2],
+  condensador: [4, 5, 6],
+  compresor: [3],
+  ambiente: [7]
+};
+
 export function ConfigPanel() {
   const { config, loading, saved, updateFuenteConfig, updateAlertConfig, updateDAQConfig, updateRelayConfig } = useConfig();
 
-  const defaultChannelGroups = {
-    evaporador: [0, 1, 2],
-    condensador: [4, 5, 6],
-    compresor: [3],
-    ambiente: [7]
-  };
-  
   // Estados locales para edición
   const [fuenteHost, setFuenteHost] = useState(config.fuente.host);
   const [fuentePort, setFuentePort] = useState(config.fuente.port.toString());
@@ -55,13 +67,13 @@ export function ConfigPanel() {
     });
   };
 
-  const handleUpdateAlertThreshold = async (key: string, field: string, value: any) => {
+  const handleUpdateAlertThreshold = async (key: AlertKey, field: AlertField, value: AlertValue) => {
     const alertConfig = { ...config.alerts };
-    (alertConfig as any)[key] = {
-      ...(alertConfig as any)[key],
+    alertConfig[key] = {
+      ...alertConfig[key],
       [field]: value
-    };
-    await updateAlertConfig({ [key]: (alertConfig as any)[key] });
+    } as AlertThreshold;
+    await updateAlertConfig({ [key]: alertConfig[key] } as Partial<AlertConfig>);
   };
 
   const handleSaveDAQ = async () => {

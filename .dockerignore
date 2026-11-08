@@ -1,0 +1,24 @@
+.git
+.gitignore
+.gitattributes
+.github
+
+# Python
+venv/
+.venv/
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+apps/backend/recordings/
+
+# Node
+apps/frontend/node_modules/
+apps/frontend/dist/
+apps/frontend/.vite/
+
+# Datos y artefactos locales
+logs/
+results/
+docs/
+*.md
+!README.md

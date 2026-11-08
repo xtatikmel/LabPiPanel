@@ -1,6 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
 import { API_BASE } from '@/lib/api';
 
+type AudioWindow = Window & {
+  webkitAudioContext?: typeof AudioContext;
+  playAlertSound?: () => void;
+};
+
 export interface Alert {
   id: string;
   type: 'warning' | 'danger' | 'info';
@@ -20,7 +25,11 @@ export function useAlerts() {
   // Crear audio element para alertas
   useEffect(() => {
     // Beep simple usando AudioContext
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const AudioContextCtor =
+      window.AudioContext ?? (window as AudioWindow).webkitAudioContext;
+    if (!AudioContextCtor) return;
+
+    const audioContext = new AudioContextCtor();
     
     const playAlertSound = () => {
       if (!soundEnabled) return;
@@ -41,7 +50,7 @@ export function useAlerts() {
       oscillator.stop(audioContext.currentTime + 0.5);
     };
 
-    (window as any).playAlertSound = playAlertSound;
+    (window as AudioWindow).playAlertSound = playAlertSound;
     
     return () => {
       audioContext.close();
@@ -57,9 +66,7 @@ export function useAlerts() {
         
         // Reproducir sonido si hay nuevas alertas
         if (newAlerts.length > activeAlerts.length && soundEnabled) {
-          if ((window as any).playAlertSound) {
-            (window as any).playAlertSound();
-          }
+          (window as AudioWindow).playAlertSound?.();
         }
         
         setActiveAlerts(newAlerts);
